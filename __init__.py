@@ -39,12 +39,12 @@ def update_cache_and_return_diff(cache, key, value, diff=(lambda old, new: old !
   cache[key] = value
   return diff(old, value)
 
-def update_cache_and_return_new_rss_items(cache, name, soup):
-  items = soup.find_all('item')
-  items_by_guid = {item.guid.text: item for item in items}
-  new_guids = update_cache_and_return_diff(
-    cache, name, set(items_by_guid.keys()),
-    diff=(lambda old_guids, current_guids: current_guids if old_guids is None else current_guids - old_guids))
-  result = [items_by_guid[guid] for guid in new_guids]
-  result.sort(key=(lambda item: datetime.datetime.strptime(item.pubdate.text, '%a, %d %b %Y %H:%M:%S %z')))
-  return result
+def update_cache_and_return_new_set_items(cache, name, current_items, cache_repr=None):
+  if cache_repr is None:
+    cache_repr = (lambda x: x)
+
+  items_by_repr = {cache_repr(item): item for item in current_items}
+  new_reprs = update_cache_and_return_diff(
+    cache, name, set(items_by_repr.keys()),
+    diff=(lambda old_reprs, current_reprs: current_reprs if old_reprs is None else current_reprs - old_reprs))
+  return [items_by_repr[new_repr] for new_repr in new_reprs]
