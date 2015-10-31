@@ -38,19 +38,12 @@ with shelve.open(args.cache) as cache:
   main_for_rss(cache, 'Dinosaur Comics', soup(get_html('www.qwantz.com', '/rssfeed.php')))
   main_for_rss(cache, 'Dr. McNinja', soup(get_plain('drmcninja.com', '/feed')))
 
-  e = soup(get_html('courses.cs.washington.edu', '/courses/cse505/15au/'))
-  old_cache_value = cache.get('CS 505 Autumn 2015', '')
-  if update_cache_and_return_diff(cache, 'CS 505 Autumn 2015', str(e)):
-    print('<h1>CS 505 Autumn 2015</h1>')
-    import difflib
-    import html
-    old_lines = old_cache_value.split('\n')
-    new_lines = str(e).split('\n')
-    diff = list(difflib.unified_diff(old_lines, new_lines))
-    print('<pre>' + html.escape('\n'.join(diff)) + '</pre>')
+  ps = soup(get_html('courses.cs.washington.edu', '/courses/cse505/15au/')).select('p')
+  main_for_set(
+    cache, 'CS 505 Autumn 2015', ps,
+    cache_repr=str,
+    sort_key=ps.index)
 
-  # NOPE! Schneier is Atom, not RSS.
-  # main_for_rss(cache, 'Schneier', get_kwargs=dict(domain='www.schneier.com', path='/feed', secure=True))
   articles = soup(get_html('www.schneier.com', secure=True)).select('.article')
   main_for_set(
     cache, 'Schneier', articles,
