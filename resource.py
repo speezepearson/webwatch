@@ -3,6 +3,16 @@ import html
 import bs4
 from .fetch import fetch
 
+def remove_global_effects(element):
+  for tag in list(element.find_all('style')):
+    tag.extract()
+  for tag in list(element.find_all('script')):
+    tag.extract()
+  for tag in list(element.find_all(True)):
+    for attr in list(tag.attrs.keys()):
+      if attr.startswith('on'):
+        del tag.attrs[attr]
+
 class Resource:
   '''
   Every resource has ways to:
@@ -45,7 +55,10 @@ class Resource:
     self.format_tag = format_tag
 
   def fetch_elements(self):
-    return bs4.BeautifulSoup(self.fetch_xml(self.url), 'html.parser').select(self.selector)
+    result = bs4.BeautifulSoup(self.fetch_xml(self.url), 'html.parser').select(self.selector)
+    for element in result:
+      remove_global_effects(element)
+    return result
 
   def select_new_elements(self, cache, elements):
     return [
