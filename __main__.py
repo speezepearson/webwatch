@@ -24,8 +24,9 @@ username = 'wacnt'
 '''
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--cache', default=DEFAULT_CACHE_PATH)
-parser.add_argument('--resources', default=DEFAULT_CONFIG_PATH)
+parser.add_argument('--cache', default=DEFAULT_CACHE_PATH, help='file to store old versions of resources in')
+parser.add_argument('--resources', default=DEFAULT_CONFIG_PATH, help='config file describing resources to fetch')
+parser.add_argument('--only', default=None, type=(lambda s: set(s.split(','))), help='comma-separated list of resources; exclude unnamed resources')
 args = parser.parse_args()
 
 if args.resources == DEFAULT_CONFIG_PATH and not os.path.exists(DEFAULT_CONFIG_PATH):
@@ -34,5 +35,8 @@ if args.resources == DEFAULT_CONFIG_PATH and not os.path.exists(DEFAULT_CONFIG_P
     f.write(example_ini)
 
 resources = unsafe_parse_config(args.resources)
+if args.only is not None:
+  resources = [r for r in resources if r.name in args.only]
+
 with shelve.open(args.cache) as cache:
   print(fetch_and_update_cache_and_summarize_in_parallel(cache, resources))
