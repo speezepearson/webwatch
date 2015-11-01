@@ -60,10 +60,13 @@ class Resource:
     self.update_cache(cache, current_elements)
     if self.tag_sort_key:
       new_elements.sort(key=self.tag_sort_key)
+
+    lines = []
     if new_elements:
-      print('<h1>', self.name, '</h1>', file=file)
+      lines.append('<h1>{}</h1>'.format(self.name))
       for e in new_elements:
-        print(self.format_tag(e), file=file)
+        lines.append(self.format_tag(e))
+    print('\n'.join(lines), file=file)
 
 import datetime
 RSS_TIME_FORMAT = '%a, %d %b %Y %H:%M:%S %z'

@@ -5,7 +5,7 @@ import difflib
 import html
 import datetime
 
-from webwatch import fetcher, Resource, RSSResource
+from webwatch import fetcher, Resource, RSSResource, run_resources
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cache', default=os.path.join(os.environ['HOME'], '.fetchstuff-cache'))
@@ -43,7 +43,4 @@ all_resources = rss_resources + [
     format_tag=(lambda t: '<p>'+t.text+'</p>'))]
 
 with shelve.open(args.cache) as cache:
-  for resource in all_resources:
-    import sys
-    print(resource.name, file=sys.stderr)
-    resource.main(cache)
+  run_resources(cache, all_resources)
