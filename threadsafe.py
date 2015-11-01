@@ -1,6 +1,5 @@
 import threading
 import collections.abc
-import sys
 
 class LockableMapping(collections.abc.MutableMapping):
   def __init__(self, cache):

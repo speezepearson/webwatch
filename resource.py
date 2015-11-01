@@ -1,7 +1,7 @@
 import threading
 import html
 import bs4
-import sys
+from .fetch import fetch
 
 class Resource:
   '''
@@ -35,16 +35,17 @@ class Resource:
 
   '''
 
-  def __init__(self, name, fetch_xml, selector, tag_to_cache_repr=str, format_tag=str, tag_sort_key=None):
+  def __init__(self, name, url, selector, fetch_xml=fetch, tag_to_cache_repr=str, format_tag=str, tag_sort_key=None):
     self.name = name
-    self.fetch_xml = fetch_xml
+    self.url = url
     self.selector = selector
+    self.fetch_xml = fetch_xml
     self.tag_to_cache_repr = tag_to_cache_repr
     self.tag_sort_key = tag_sort_key
     self.format_tag = format_tag
 
   def fetch_elements(self):
-    return bs4.BeautifulSoup(self.fetch_xml(), 'html.parser').select(self.selector)
+    return bs4.BeautifulSoup(self.fetch_xml(self.url), 'html.parser').select(self.selector)
 
   def select_new_elements(self, cache, elements):
     return [
