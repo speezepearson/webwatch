@@ -27,34 +27,19 @@ class LockableMapping(collections.abc.MutableMapping):
     with self.lock:
       return len(self.cache)
 
-class LockableFile:
-  def __init__(self, file):
-    self.file = file
-    self.lock = threading.Lock()
-
-  def read(self, *args, **kwargs):
-    with self.lock:
-      return self.file.read(*args, **kwargs)
-
-  def write(self, *args, **kwargs):
-    with self.lock:
-      return self.file.write(*args, **kwargs)
-
-  def flush(self, *args, **kwargs):
-    with self.lock:
-      return self.file.flush(*args, **kwargs)
-
-  def seek(self, *args, **kwargs):
-    with self.lock:
-      return self.file.seek(*args, **kwargs)
-
-def run_resources(cache, resources, file=sys.stdout):
+def fetch_and_update_cache_and_summarize_in_parallel(cache, resources):
   cache = LockableMapping(cache)
-  file = LockableFile(file)
+  results = {}
+  def do_everything_and_set_result(resource):
+    results[resource.name] = resource.fetch_and_update_cache_and_summarize(cache)
+
   threads = set()
   for resource in resources:
-    t = threading.Thread(target=resource.main, args=[cache], kwargs={'file': file})
+    t = threading.Thread(target=do_everything_and_set_result, args=[resource])
     t.start()
     threads.add(t)
+
   for thread in threads:
     thread.join()
+
+  return '\n\n'.join(results[resource.name] for resource in resources)

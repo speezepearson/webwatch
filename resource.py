@@ -54,19 +54,22 @@ class Resource:
   def update_cache(self, cache, elements):
     cache[self.name] = set(self.tag_to_cache_repr(e) for e in elements)
 
-  def main(self, cache, file=sys.stdout):
+  def summarize(self, new_elements):
+    lines = []
+    if new_elements:
+      lines.append('<h1>{}</h1>'.format(self.name))
+      for e in new_elements:
+        lines.append(self.format_tag(e))
+    return '\n'.join(lines)
+
+  def fetch_and_update_cache_and_summarize(self, cache):
     current_elements = self.fetch_elements()
     new_elements = self.select_new_elements(cache, current_elements)
     self.update_cache(cache, current_elements)
     if self.tag_sort_key:
       new_elements.sort(key=self.tag_sort_key)
 
-    lines = []
-    if new_elements:
-      lines.append('<h1>{}</h1>'.format(self.name))
-      for e in new_elements:
-        lines.append(self.format_tag(e))
-    print('\n'.join(lines), file=file)
+    return self.summarize(new_elements)
 
 import datetime
 RSS_TIME_FORMAT = '%a, %d %b %Y %H:%M:%S %z'
