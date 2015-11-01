@@ -19,10 +19,8 @@ selector = ".article"
 tag_to_cache_repr = lambda t: t.h2.text
 
 [W|A Can't]
-url = "twitter.com/wacnt"
-selector = ".tweet-text"
-tag_to_cache_repr = lambda t: t.text
-format_tag = lambda t: '<p>'+t.text+'</p>'
+class = TwitterResource
+username = 'wacnt'
 '''
 
 parser = argparse.ArgumentParser()
