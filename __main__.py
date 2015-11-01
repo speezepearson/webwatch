@@ -22,13 +22,13 @@ def main_for_set(cache, name, items, cache_repr=None, sort_key=None, format=None
     for item in new_items:
       print(format(item))
 
-def main_for_rss(cache, name, soup):
+def main_for_rss(cache, name, soup, limit=10):
   main_for_set(
-    cache, name, soup.select('item'),
-    cache_repr=(lambda item: item.guid.text),
-    sort_key=(lambda item: datetime.datetime.strptime(item.pubdate.text, '%a, %d %b %Y %H:%M:%S %z')),
+    cache, name, soup.select('item')[:limit],
+    cache_repr=(lambda item: (item.guid.text if item.guid else item.title.text)),
+    sort_key=(lambda item: datetime.datetime.strptime(item.pubdate.text, '%a, %d %b %Y %H:%M:%S %z') if item.pubdate else datetime.datetime.now()),
     format=(lambda item: '<h2><a href="{link}">{title}</a></h2> {body}'.format(
-      link=item.link.text, title=item.title.text, body=html.unescape(str(item.description)))))
+      link=item.link.text, title=item.title.text, body=html.unescape(''.join(str(e) for e in item.description.children)) if item.description else '')))
 
 with shelve.open(args.cache) as cache:
   main_for_rss(cache, 'xkcd', soup(get_html('xkcd.com', '/rss.xml')))
@@ -37,6 +37,10 @@ with shelve.open(args.cache) as cache:
   main_for_rss(cache, 'SMBC', soup(get_html('smbc-comics.com', '/rss.php')))
   main_for_rss(cache, 'Dinosaur Comics', soup(get_html('www.qwantz.com', '/rssfeed.php')))
   main_for_rss(cache, 'Dr. McNinja', soup(get_plain('drmcninja.com', '/feed')))
+  main_for_rss(cache, 'Invisible Bread', soup(get_plain('feeds.feedburner.com', '/InvisibleBread')))
+  main_for_rss(cache, 'Awkward Zombie', soup(get_html('awkwardzombie.com', '/awkward.php')))
+  main_for_rss(cache, 'Questionable Content', soup(get_html('questionablecontent.net', '/QCRSS.xml')))
+  main_for_rss(cache, 'Sam And Fuzzy', soup(get_html('www.samandfuzzy.com', '/feed')))
 
   ps = soup(get_html('courses.cs.washington.edu', '/courses/cse505/15au/')).select('p')
   main_for_set(
