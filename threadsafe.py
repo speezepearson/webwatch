@@ -26,11 +26,11 @@ class LockableMapping(collections.abc.MutableMapping):
     with self.lock:
       return len(self.cache)
 
-def fetch_and_update_cache_and_summarize_in_parallel(cache, resources):
+def fetch_and_summarize_in_parallel(cache, resources, **method_kwargs):
   cache = LockableMapping(cache)
   results = {}
   def do_everything_and_set_result(resource):
-    results[resource.name] = resource.fetch_and_update_cache_and_summarize(cache)
+    results[resource.name] = resource.fetch_and_summarize(cache, **method_kwargs)
 
   threads = set()
   for resource in resources:

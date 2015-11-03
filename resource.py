@@ -76,10 +76,11 @@ class Resource:
         lines.append(self.format_tag(e))
     return '\n'.join(lines)
 
-  def fetch_and_update_cache_and_summarize(self, cache):
+  def fetch_and_summarize(self, cache, update_cache=False):
     current_elements = self.fetch_elements()
     new_elements = self.select_new_elements(cache, current_elements)
-    self.update_cache(cache, current_elements)
+    if update_cache:
+      self.update_cache(cache, current_elements)
     if self.tag_sort_key:
       new_elements.sort(key=self.tag_sort_key)
 
@@ -98,7 +99,7 @@ class RSSResource(Resource):
 
   @staticmethod
   def _tag_to_cache_repr(tag):
-    return tag.guid.text if tag.guid is not None else tag.title
+    return tag.guid.text if tag.guid is not None else tag.title.text
 
   @staticmethod
   def _format_tag(tag):
