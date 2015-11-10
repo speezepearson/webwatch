@@ -1,5 +1,6 @@
 import threading
 import collections.abc
+import sys
 
 class LockableMapping(collections.abc.MutableMapping):
   def __init__(self, cache):
@@ -41,4 +42,8 @@ def fetch_and_summarize_in_parallel(cache, resources, **method_kwargs):
   for thread in threads:
     thread.join()
 
-  return '\n\n'.join(results[resource.name] for resource in resources)
+  successful_resources = set(r for r in resources if r.name in set(results.keys()))
+  failing_resources = set(r for r in resources if r.name not in set(results.keys()))
+  if failing_resources:
+    print('failed to fetch/summarize:', ', '.join(r.name for r in failing_resources), file=sys.stderr)
+  return '\n\n'.join(results[r.name] for r in successful_resources)

@@ -78,13 +78,17 @@ class Resource:
 
   def fetch_and_summarize(self, cache, update_cache=False):
     current_elements = self.fetch_elements()
-    new_elements = self.select_new_elements(cache, current_elements)
-    if update_cache:
-      self.update_cache(cache, current_elements)
+    new_elements = list(self.select_new_elements(cache, current_elements))
+
     if self.tag_sort_key:
       new_elements.sort(key=self.tag_sort_key)
 
-    return self.summarize(new_elements)
+    result = self.summarize(new_elements)
+
+    if update_cache:
+      self.update_cache(cache, current_elements)
+
+    return result
 
 import datetime
 RSS_TIME_FORMAT = '%a, %d %b %Y %H:%M:%S %z'
