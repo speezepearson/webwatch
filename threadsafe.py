@@ -27,11 +27,11 @@ class LockableMapping(collections.abc.MutableMapping):
     with self.lock:
       return len(self.cache)
 
-def fetch_and_summarize_in_parallel(cache, resources, **method_kwargs):
+def fetch_and_diff_in_parallel(cache, resources, **method_kwargs):
   cache = LockableMapping(cache)
   results = {}
   def do_everything_and_set_result(resource):
-    results[resource.name] = resource.fetch_and_summarize(cache, **method_kwargs)
+    results[resource.name] = resource.fetch_and_diff(cache, **method_kwargs)
 
   threads = set()
   for resource in resources:
@@ -42,8 +42,8 @@ def fetch_and_summarize_in_parallel(cache, resources, **method_kwargs):
   for thread in threads:
     thread.join()
 
-  successful_resources = set(r for r in resources if r.name in set(results.keys()))
-  failing_resources = set(r for r in resources if r.name not in set(results.keys()))
-  if failing_resources:
-    print('failed to fetch/summarize:', ', '.join(r.name for r in failing_resources), file=sys.stderr)
-  return '\n\n'.join(results[r.name] for r in successful_resources)
+  successful_resource_names = set(results.keys())
+  failing_resource_names = set(r.name for r in resources) - successful_resource_names
+  if failing_resource_names:
+    print('failed to fetch/diff:', ', '.join(failing_resource_names), file=sys.stderr)
+  return '\n\n'.join(diff for diff in results.values() if diff.strip())

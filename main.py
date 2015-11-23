@@ -2,7 +2,7 @@ import shelve
 import argparse
 import os
 
-from .threadsafe import fetch_and_summarize_in_parallel
+from .threadsafe import fetch_and_diff_in_parallel
 
 DEFAULT_CACHE_PATH = '~/.webwatch-cache'
 
@@ -19,4 +19,4 @@ def main(*resources, command_line_args=None):
     resources = [r for r in resources if r.name in args.only]
 
   with shelve.open(args.cache) as cache:
-    print(fetch_and_summarize_in_parallel(cache, resources, update_cache=args.update_cache))
+    print(fetch_and_diff_in_parallel(cache, resources, update_cache=args.update_cache))
