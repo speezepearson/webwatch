@@ -16,7 +16,10 @@ def format_item(tag):
       content=content)
 
 def item_published_date(tag):
-  return (datetime.datetime.now() if tag.pubdate is None else datetime.datetime.strptime(tag.pubdate.text, RSS_TIME_FORMAT))
+  if tag.pubdate is None:
+    return datetime.datetime.now()
+  date_string = tag.pubdate.text.replace('GMT', '-0000')
+  return datetime.datetime.strptime(date_string, RSS_TIME_FORMAT)
 
 class RSSResource(ElementSetResource):
   def __init__(self, **kwargs):
