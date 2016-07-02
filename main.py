@@ -4,7 +4,7 @@ import os
 
 from .threadsafe import fetch_and_diff_in_parallel
 
-DEFAULT_CACHE_PATH = '~/.webwatch-cache'
+DEFAULT_CACHE_PATH = os.path.join(os.path.expanduser('~'), '.cache', 'webwatch', 'cache')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cache', default=os.path.expanduser(DEFAULT_CACHE_PATH), help='file to store old versions of resources in')
@@ -17,6 +17,10 @@ def main(*resources, command_line_args=None):
 
   if args.only is not None:
     resources = [r for r in resources if r.name in args.only]
+
+  cache_dir = os.path.dirname(os.path.abspath(args.cache))
+  if not os.path.exists(cache_dir):
+    os.path.makedirs(cache_dir)
 
   with shelve.open(args.cache) as cache:
     print(fetch_and_diff_in_parallel(cache, resources, update_cache=args.update_cache))
