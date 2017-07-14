@@ -20,7 +20,7 @@ def main(*resources, command_line_args=None):
 
   cache_dir = os.path.dirname(os.path.abspath(args.cache))
   if not os.path.exists(cache_dir):
-    os.path.makedirs(cache_dir)
+    os.makedirs(cache_dir)
 
   with shelve.open(args.cache) as cache:
     print(fetch_and_diff_in_parallel(cache, resources, update_cache=args.update_cache))
