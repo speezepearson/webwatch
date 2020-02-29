@@ -1,4 +1,6 @@
 import html
+import datetime as dt
+import dateutil.parser
 from . import ElementSetResource
 
 def entry_guid(tag):
@@ -13,7 +15,9 @@ def format_entry(tag):
       content=content)
 
 def entry_published_date(tag):
-  return ('' if tag.published is None else tag.published.text)
+  if tag.pubdate is None:
+    return dt.datetime.now()
+  return dateutil.parser.parse(tag.pubdate.text)
 
 class AtomResource(ElementSetResource):
   def __init__(self, **kwargs):

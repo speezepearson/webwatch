@@ -68,6 +68,7 @@ class ElementSetResource(Resource):
 
     return '\n'.join(self.format_tag(e) for e in new_elements)
 
-from .atom import *
-from .rss import *
-from .twitter import *
+from .atom import AtomResource
+from .rss import RSSResource
+from .tumblr import TumblrResource
+from .twitter import TwitterResource

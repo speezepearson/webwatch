@@ -1,5 +1,5 @@
-import datetime
 import html
+import dateutil.parser
 from . import ElementSetResource
 
 RSS_TIME_FORMAT = '%a, %d %b %Y %H:%M:%S %z'
@@ -18,8 +18,7 @@ def format_item(tag):
 def item_published_date(tag):
   if tag.pubdate is None:
     return datetime.datetime.now()
-  date_string = tag.pubdate.text.replace('GMT', '-0000')
-  return datetime.datetime.strptime(date_string, RSS_TIME_FORMAT)
+  return dateutil.parser.parse(tag.pubdate.text)
 
 class RSSResource(ElementSetResource):
   def __init__(self, **kwargs):
